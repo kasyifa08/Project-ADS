@@ -17,13 +17,24 @@ class PostCreate(BaseModel):
 
 # Admin: buat postingan barang temuan
 @router.post("/", status_code=201)
-def create_post(data: PostCreate, db: Session = Depends(get_db),
-                current_user = Depends(auth.get_current_user)
-    post = models.Post(**data.dict(), admin_id=_admin.id)
+def create_post(
+    data: PostCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(auth.get_current_user)
+):
+    post = models.Post(
+        **data.dict(),
+        admin_id=current_user.id
+    )
+
     db.add(post)
     db.commit()
     db.refresh(post)
-    return {"message": "Post berhasil dibuat!", "post_id": post.id}
+
+    return {
+        "message": "Post berhasil dibuat!",
+        "post_id": post.id
+    }
 
 # Semua user: lihat semua postingan barang temuan
 @router.get("/")
