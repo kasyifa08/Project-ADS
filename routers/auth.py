@@ -1,5 +1,7 @@
 from fastapi.security import OAuth2PasswordRequestForm
 
+router = APIRouter(prefix="/auth", tags=["Authentication"])
+
 @router.post("/login", response_model=TokenResponse)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
