@@ -3,18 +3,23 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    nama = Column(String(100), nullable=False)
-    nim = Column(String(20), unique=True, nullable=True)
-    email = Column(String(100), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    role = Column(String(10), default="mahasiswa")  # 'mahasiswa' | 'admin'
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+class Admin(Base):
+    __tablename__ = "admins"
 
-    tickets = relationship("Ticket", back_populates="user")
-    notifications = relationship("Notification", back_populates="user")
+    id = Column(Integer, primary_key=True)
+    nama = Column(String)
+    email = Column(String, unique=True)
+    password_hash = Column(String)
+
+class Mahasiswa(Base):
+    __tablename__ = "mahasiswa"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nim = Column(String, unique=True, nullable=False)
+    nama = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    noTelp = Column(String)
+    password_hash = Column(String, nullable=False)
 
 class Ticket(Base):
     __tablename__ = "tickets"

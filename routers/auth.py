@@ -4,7 +4,10 @@ from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 
 from database import get_db
-import models, auth
+import models
+import auth
+
+router = APIRouter(tags=["Admin Auth"])
 
 router = APIRouter(
     prefix="/auth",
@@ -30,7 +33,7 @@ class TokenResponse(BaseModel):
 
 
 # =========================
-# REGISTER
+# REGISTER MAHASISWA
 # =========================
 
 @router.post("/register", status_code=201)
@@ -52,8 +55,7 @@ def register(
         nama=data.nama,
         nim=data.nim,
         email=data.email,
-        password_hash=auth.hash_password(data.password),
-        role="mahasiswa"
+        password_hash=auth.hash_password(data.password)
     )
 
     db.add(new_user)
@@ -61,42 +63,108 @@ def register(
     db.refresh(new_user)
 
     return {
-        "message": "Registrasi berhasil! Silakan login."
+        "message": "Registrasi mahasiswa berhasil!"
     }
 
-
 # =========================
-# LOGIN
+# REGISTER ADMIN
 # =========================
 
-@router.post("/login", response_model=TokenResponse)
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+@router.post("/admin/register", status_code=201)
+def register_admin(
+    data: AdminRegisterRequest,
     db: Session = Depends(get_db)
 ):
-    user = db.query(models.User).filter(
-        models.User.email == form_data.username
+    existing = db.query(models.Admin).filter(
+        models.Admin.email == data.email
     ).first()
 
-    if not user or not auth.verify_password(
-        form_data.password,
-        user.password_hash
-    ):
+    if existing:
         raise HTTPException(
-            status_code=401,
-            detail="Email atau password salah."
+            status_code=400,
+            detail="Email admin sudah terdaftar."
         )
 
-    token = auth.create_access_token({
-        "sub": str(user.id),
-        "role": user.role
-    })
+    new_admin = models.Admin(
+        nama=data.nama,
+        email=data.email,
+        password_hash=auth.hash_password(data.password)
+    )
+
+    db.add(new_admin)
+    db.commit()
+    db.refresh(new_admin)
 
     return {
-        "access_token": token,
-        "token_type": "bearer",
-        "role": user.role,
-        "nama": user.nama
+        "message": "Registrasi admin berhasil!"
+    }
+
+# =========================
+# LOGIN ADMIN
+# =========================
+
+@router.post("/admin/login")
+def admin_login(
+    user: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    admin = db.query(models.Admin).filter(
+        models.Admin.email == user.username
+    ).first()
+
+    if not admin:
+        raise HTTPException(
+            status_code=401,
+            detail="Admin tidak ditemukan"
+        )
+
+    if not verify_password(user.password, admin.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="Password salah"
+        )
+
+    access_token = create_access_token(
+        data={"sub": admin.email}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+# =========================
+# LOGIN MAHASISWA
+# =========================
+
+@router.post("/login")
+def login(
+    user: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    mahasiswa = db.query(models.Mahasiswa).filter(
+        models.Mahasiswa.email == user.username
+    ).first()
+
+    if not mahasiswa:
+        raise HTTPException(
+            status_code=401,
+            detail="Email salah"
+        )
+
+    if not verify_password(user.password, mahasiswa.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="Password salah"
+        )
+
+    access_token = create_access_token(
+        data={"sub": mahasiswa.email}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
     }
 
 
