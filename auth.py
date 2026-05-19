@@ -30,7 +30,7 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_mahasiswa(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Token tidak valid. Silakan login kembali.",
@@ -38,18 +38,18 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        mahasiswa_id: int = payload.get("sub")
+        if mahasiswa_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if user is None:
+    mahasiswa = db.query(models.Mahasiswa).filter(models.Mahasiswa.id == mahasiswa_id).first()
+    if mahasiswa is None:
         raise credentials_exception
-    return user
+    return mahasiswa
 
-def require_admin(current_user = Depends(get_current_user)):
-    if current_user.role != "admin":
+def require_admin(current_mahasiswa = Depends(get_current_mahasiswa)):
+    if current_mahasiswa.role != "admin":
         raise HTTPException(status_code=403, detail="Hanya admin yang diizinkan.")
-    return current_user
+    return current_mahasiswa
