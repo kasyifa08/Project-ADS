@@ -20,11 +20,11 @@ class PostCreate(BaseModel):
 def create_post(
     data: PostCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(auth.get_current_user)
+    current_admin = Depends(auth.get_current_admin)
 ):
     post = models.Post(
         **data.dict(),
-        admin_id=current_user.id
+        admin_id=current_admin.id
     )
 
     db.add(post)

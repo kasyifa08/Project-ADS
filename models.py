@@ -18,13 +18,13 @@ class Mahasiswa(Base):
     nim = Column(String, unique=True, nullable=False)
     nama = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    noTelp = Column(String)
+    no_telp = Column(String)
     password_hash = Column(String, nullable=False)
 
 class Ticket(Base):
     __tablename__ = "tickets"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("mahasiswa.id", ondelete="CASCADE"))
     tipe = Column(String(10), nullable=False)       # 'hilang' | 'temuan'
     nama_barang = Column(String(150), nullable=False)
     deskripsi = Column(Text)
@@ -32,16 +32,17 @@ class Ticket(Base):
     lokasi = Column(String(200), nullable=False)
     waktu_kejadian = Column(DateTime(timezone=True), nullable=False)
     foto_url = Column(String(500))
-    status = Column(String(20), default="menunggu")
+    status = Column(Enum("pending", "approved", "rejected", name="ticket_status"), default="pending")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    user = relationship("User", back_populates="tickets")
+    mahasiswa = relationship("Mahasiswa", back_populates="tickets")
 
 class Post(Base):
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True, index=True)
-    admin_id = Column(Integer, ForeignKey("users.id"))
+    admin_id = Column(Integer, ForeignKey("admins.id"))
+    ticket_id = Column(Integer, ForeignKey("tickets.id"))
     judul = Column(String(200), nullable=False)
     deskripsi = Column(Text, nullable=False)
     lokasi_ditemukan = Column(String(200))
@@ -53,10 +54,10 @@ class Post(Base):
 class Notification(Base):
     __tablename__ = "notifications"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("mahasiswa.id", ondelete="CASCADE"))
     judul = Column(String(200), nullable=False)
     pesan = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    user = relationship("User", back_populates="notifications")
+    mahasiswa = relationship("Mahasiswa", back_populates="notifications")

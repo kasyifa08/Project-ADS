@@ -42,8 +42,8 @@ def register(
     data: RegisterRequest,
     db: Session = Depends(get_db)
 ):
-    existing = db.query(models.User).filter(
-        models.User.email == data.email
+    existing = db.query(models.Mahasiswa).filter(
+        models.Mahasiswa.email == data.email
     ).first()
 
     if existing:
@@ -52,16 +52,16 @@ def register(
             detail="Email sudah terdaftar."
         )
 
-    new_user = models.User(
+    new_mahasiswa = models.Mahasiswa(
         nama=data.nama,
         nim=data.nim,
         email=data.email,
         password_hash=auth.hash_password(data.password)
     )
 
-    db.add(new_user)
+    db.add(new_mahasiswa)
     db.commit()
-    db.refresh(new_user)
+    db.refresh(new_mahasiswa)
 
     return {
         "message": "Registrasi mahasiswa berhasil!"
@@ -106,11 +106,11 @@ def register_admin(
 
 @router.post("/admin/login")
 def admin_login(
-    user: OAuth2PasswordRequestForm = Depends(),
+    admin: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     admin = db.query(models.Admin).filter(
-        models.Admin.email == user.username
+        models.Admin.email == admin.username
     ).first()
 
     if not admin:
@@ -119,7 +119,7 @@ def admin_login(
             detail="Admin tidak ditemukan"
         )
 
-    if not verify_password(user.password, admin.password_hash):
+    if not verify_password(admin.password, admin.password_hash):
         raise HTTPException(
             status_code=401,
             detail="Password salah"
@@ -140,11 +140,11 @@ def admin_login(
 
 @router.post("/login")
 def login(
-    user: OAuth2PasswordRequestForm = Depends(),
+    mahasiswa: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     mahasiswa = db.query(models.Mahasiswa).filter(
-        models.Mahasiswa.email == user.username
+        models.Mahasiswa.email == mahasiswa.username
     ).first()
 
     if not mahasiswa:
@@ -153,7 +153,7 @@ def login(
             detail="Email salah"
         )
 
-    if not verify_password(user.password, mahasiswa.password_hash):
+    if not verify_password(mahasiswa.password, mahasiswa.password_hash):
         raise HTTPException(
             status_code=401,
             detail="Password salah"
@@ -170,17 +170,17 @@ def login(
 
 
 # =========================
-# GET CURRENT USER
+# GET CURRENT MAHASISWA
 # =========================
 
 @router.get("/me")
 def get_me(
-    current_user = Depends(auth.get_current_user)
+    current_mahasiswa = Depends(auth.get_current_mahasiswa)
 ):
     return {
-        "id": current_user.id,
-        "nama": current_user.nama,
-        "email": current_user.email,
-        "nim": current_user.nim,
-        "role": current_user.role
+        "id": current_mahasiswa.id,
+        "nama": current_mahasiswa.nama,
+        "email": current_mahasiswa.email,
+        "nim": current_mahasiswa.nim,
+        "role": current_mahasiswa.role
     }

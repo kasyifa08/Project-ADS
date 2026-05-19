@@ -22,20 +22,33 @@ class TicketStatusUpdate(BaseModel):
 
 # Mahasiswa: buat tiket baru
 @router.post("/", status_code=201)
-def create_ticket(data: TicketCreate, db: Session = Depends(get_db),
-                  current_user = Depends(auth.get_current_user)):
-    ticket = models.Ticket(**data.dict(), user_id=current_user.id)
+def create_ticket(
+    data: TicketCreate,
+    db: Session = Depends(get_db),
+    current_mahasiswa = Depends(auth.get_current_mahasiswa)
+):
+    ticket = models.Ticket(
+        **data.dict(),
+        mahasiswa_id=current_mahasiswa.id,
+        status="pending"
+    )
+
     db.add(ticket)
     db.commit()
     db.refresh(ticket)
-    return {"message": "Tiket berhasil dikirim!", "ticket_id": ticket.id}
+
+    return {
+        "message": "Tiket berhasil dikirim dan menunggu verifikasi admin.",
+        "ticket_id": ticket.id,
+        "status": ticket.status
+    }
 
 # Mahasiswa: lihat tiket milik sendiri
 @router.get("/my")
 def get_my_tickets(db: Session = Depends(get_db),
-                   current_user = Depends(auth.get_current_user)):
+                   current_mahasiswa = Depends(auth.get_current_mahasiswa)):
     tickets = db.query(models.Ticket).filter(
-        models.Ticket.user_id == current_user.id
+        models.Ticket.mahasiswa_id == current_mahasiswa.id
     ).order_by(models.Ticket.created_at.desc()).all()
     return tickets
 
@@ -65,7 +78,7 @@ def update_ticket_status(ticket_id: int, data: TicketStatusUpdate,
     }
     if data.status in pesan_status:
         notif = models.Notification(
-            user_id=ticket.user_id,
+            mahasiswa_id=ticket.mahasiswa_id,
             judul=f"Update status: {ticket.nama_barang}",
             pesan=pesan_status[data.status]
         )
