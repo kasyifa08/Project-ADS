@@ -182,5 +182,4 @@ def get_me(
         "nama": current_mahasiswa.nama,
         "email": current_mahasiswa.email,
         "nim": current_mahasiswa.nim,
-        "role": current_mahasiswa.role
     }
