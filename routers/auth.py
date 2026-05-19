@@ -175,11 +175,12 @@ def login(
 
 @router.get("/me")
 def get_me(
-    current_mahasiswa = Depends(auth.get_current_mahasiswa)
+    current_mahasiswa = Depends(get_current_mahasiswa)
 ):
     return {
         "id": current_mahasiswa.id,
         "nama": current_mahasiswa.nama,
         "email": current_mahasiswa.email,
         "nim": current_mahasiswa.nim,
+        "role": current_mahasiswa.role
     }
