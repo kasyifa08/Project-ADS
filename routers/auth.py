@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
+from schemas import MahasiswaLogin, AdminLogin, AdminRegisterRequest
 
 from database import get_db
 import models
