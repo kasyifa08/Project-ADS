@@ -21,6 +21,8 @@ class Mahasiswa(Base):
     no_telp = Column(String)
     password_hash = Column(String, nullable=False)
 
+    tickets = relationship("Ticket", back_populates="mahasiswa")
+
 class Ticket(Base):
     __tablename__ = "tickets"
     id = Column(Integer, primary_key=True, index=True)
