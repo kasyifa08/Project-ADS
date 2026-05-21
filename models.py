@@ -22,6 +22,7 @@ class Mahasiswa(Base):
     password_hash = Column(String, nullable=False)
 
     tickets = relationship("Ticket", back_populates="mahasiswa")
+    notifications = relationship("Notification", back_populates="mahasiswa")
 
 class Ticket(Base):
     __tablename__ = "tickets"
