@@ -184,6 +184,7 @@ def get_me(
         "id": current_user.id,
         "nama": current_user.nama,
         "email": current_user.email,
+        "no_telp": current_user.no_telp,
         "nim": current_user.nim,
         "role": current_user.role
     }
