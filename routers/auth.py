@@ -143,11 +143,11 @@ def admin_login(
 
 @router.post("/login")
 def login(
-    mahasiswa: OAuth2PasswordRequestForm = Depends(),
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     mahasiswa = db.query(models.Mahasiswa).filter(
-        models.Mahasiswa.email == mahasiswa.username
+        models.Mahasiswa.email == form_data.username
     ).first()
 
     if not mahasiswa:
@@ -156,7 +156,7 @@ def login(
             detail="Email salah"
         )
 
-    if not verify_password(mahasiswa.password, mahasiswa.password_hash):
+    if not verify_password(form_data.password, mahasiswa.password_hash):
         raise HTTPException(
             status_code=401,
             detail="Password salah"
