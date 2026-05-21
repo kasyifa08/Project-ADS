@@ -18,7 +18,7 @@ class Mahasiswa(Base):
     nim = Column(String, unique=True, nullable=False)
     nama = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    no_telp = Column(String)
+    no_telp = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
 
     tickets = relationship("Ticket", back_populates="mahasiswa")

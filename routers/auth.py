@@ -23,6 +23,7 @@ router = APIRouter(
 class RegisterRequest(BaseModel):
     nama: str
     nim: str | None = None
+    no_telp: str
     email: EmailStr
     password: str
 
@@ -56,6 +57,7 @@ def register(
     new_mahasiswa = models.Mahasiswa(
         nama=data.nama,
         nim=data.nim,
+        no_telp=data.no_telp,
         email=data.email,
         password_hash=auth.hash_password(data.password)
     )
