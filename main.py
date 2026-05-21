@@ -5,7 +5,7 @@ import models
 from routers import auth, tickets, posts, notifications
 
 # Buat semua tabel jika belum ada
-Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="IPB Lost & Found API", version="1.0.0")
 
