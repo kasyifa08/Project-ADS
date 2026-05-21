@@ -109,27 +109,30 @@ def register_admin(
 
 @router.post("/admin/login")
 def admin_login(
-    admin: OAuth2PasswordRequestForm = Depends(),
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     admin = db.query(models.Admin).filter(
-        models.Admin.email == admin.username
+        models.Admin.email == form_data.username
     ).first()
 
     if not admin:
         raise HTTPException(
             status_code=401,
-            detail="Admin tidak ditemukan"
+            detail="Email admin salah"
         )
 
-    if not verify_password(admin.password, admin.password_hash):
+    if not verify_password(
+        form_data.password,
+        admin.password_hash
+    ):
         raise HTTPException(
             status_code=401,
-            detail="Password salah"
+            detail="Password admin salah"
         )
 
     access_token = create_access_token(
-        data={"sub": admin.email}
+        data={"sub": str(admin.id)}
     )
 
     return {
