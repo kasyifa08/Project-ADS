@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import MahasiswaLogin, AdminLogin, AdminRegisterRequest
-from auth import get_current_mahasiswat_current_mahasiswa, verify_password, create_access_token
+from auth import get_current_mahasiswa, verify_password, create_access_token
 
 from database import get_db
 import models
@@ -176,7 +176,7 @@ def login(
 
 @router.get("/me")
 def get_me(
-    current_user = Depends(auth.get_current_user)
+    current_user = Depends(auth.get_current_mahasiswa)
 ):
     return {
         "id": current_user.id,
