@@ -156,14 +156,17 @@ def login(
             detail="Email salah"
         )
 
-    if not verify_password(form_data.password, mahasiswa.password_hash):
+    if not verify_password(
+        form_data.password,
+        mahasiswa.password_hash
+    ):
         raise HTTPException(
             status_code=401,
             detail="Password salah"
         )
 
     access_token = create_access_token(
-        data={"sub": mahasiswa.email}
+        data={"sub": str(mahasiswa.id)}
     )
 
     return {
@@ -178,13 +181,12 @@ def login(
 
 @router.get("/me")
 def get_me(
-    current_user = Depends(auth.get_current_mahasiswa)
+    current_mahasiswa = Depends(get_current_mahasiswa)
 ):
     return {
-        "id": current_user.id,
-        "nama": current_user.nama,
-        "email": current_user.email,
-        "no_telp": current_user.no_telp,
-        "nim": current_user.nim,
-        "role": current_user.role
+        "id": current_mahasiswa.id,
+        "nama": current_mahasiswa.nama,
+        "no_telp": current_mahasiswa.no_telp,
+        "email": current_mahasiswa.email,
+        "nim": current_mahasiswa.nim
     }
