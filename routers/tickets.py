@@ -46,7 +46,7 @@ def create_ticket(
     }
 
 # Mahasiswa: lihat tiket milik sendiri
-@router.get("/my")
+@router.get("/my/")
 def get_my_tickets(db: Session = Depends(get_db),
                    current_mahasiswa = Depends(auth.get_current_mahasiswa)):
     tickets = db.query(models.Ticket).filter(
