@@ -30,6 +30,7 @@ class Ticket(Base):
     user_id = Column(Integer, ForeignKey("mahasiswa.id", ondelete="CASCADE"))
     tipe = Column(String(10), nullable=False)       # 'hilang' | 'temuan'
     nama_barang = Column(String(150), nullable=False)
+    kategori = Column(String(100))
     deskripsi = Column(Text)
     ciri_barang = Column(Text)
     lokasi = Column(String(200), nullable=False)

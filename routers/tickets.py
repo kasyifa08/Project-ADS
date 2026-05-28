@@ -13,6 +13,7 @@ class TicketCreate(BaseModel):
     tipe: str            # 'hilang' | 'temuan'
     nama_barang: str
     deskripsi: Optional[str] = None
+    kategori: Optional[str] = None
     ciri_barang: Optional[str] = None
     lokasi: str
     waktu_kejadian: datetime
