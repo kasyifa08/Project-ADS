@@ -58,16 +58,17 @@ def get_current_admin(
         detail="Admin tidak valid"
     )
 
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        admin_id = payload.get("sub")
 
-    admin_id = payload.get("sub")
+        if admin_id is None:
+            raise credentials_exception
 
-    if admin_id is None:
+    except JWTError:
         raise credentials_exception
 
-    admin = db.query(models.Admin).filter(
-        models.Admin.id == admin_id
-    ).first()
+    admin = db.query(models.Admin).filter(models.Admin.id == admin_id).first()
 
     if admin is None:
         raise credentials_exception

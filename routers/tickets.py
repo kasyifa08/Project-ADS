@@ -32,7 +32,7 @@ def create_ticket(
     ticket = models.Ticket(
         **data.dict(),
         user_id=current_mahasiswa.id,
-        status="pending"
+        status="menunggu"
     )
 
     db.add(ticket)

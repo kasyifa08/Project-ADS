@@ -22,7 +22,7 @@ router = APIRouter(
 
 class RegisterRequest(BaseModel):
     nama: str
-    nim: str | None = None
+    nim: str
     no_telp: str
     email: EmailStr
     password: str

@@ -36,7 +36,7 @@ class Ticket(Base):
     lokasi = Column(String(200), nullable=False)
     waktu_kejadian = Column(DateTime(timezone=True), nullable=False)
     foto_url = Column(String(500))
-    status = Column(Enum("pending", "approved", "rejected", name="ticket_status"), default="pending")
+    status = Column(String(20), default="menunggu")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
