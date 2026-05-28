@@ -29,7 +29,7 @@ def create_ticket(
 ):
     ticket = models.Ticket(
         **data.dict(),
-        mahasiswa_id=current_mahasiswa.id,
+        user_id=current_mahasiswa.id,
         status="pending"
     )
 
@@ -48,7 +48,7 @@ def create_ticket(
 def get_my_tickets(db: Session = Depends(get_db),
                    current_mahasiswa = Depends(auth.get_current_mahasiswa)):
     tickets = db.query(models.Ticket).filter(
-        models.Ticket.mahasiswa_id == current_mahasiswa.id
+        models.Ticket.user_id == current_mahasiswa.id
     ).order_by(models.Ticket.created_at.desc()).all()
     return tickets
 
@@ -78,7 +78,7 @@ def update_ticket_status(ticket_id: int, data: TicketStatusUpdate,
     }
     if data.status in pesan_status:
         notif = models.Notification(
-            mahasiswa_id=ticket.mahasiswa_id,
+            user_id=ticket.user_id,
             judul=f"Update status: {ticket.nama_barang}",
             pesan=pesan_status[data.status]
         )
