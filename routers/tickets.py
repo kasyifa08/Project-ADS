@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 from database import get_db
+from auth import require_admin
 import models, auth
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
