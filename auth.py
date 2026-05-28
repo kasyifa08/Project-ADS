@@ -49,7 +49,30 @@ def get_current_mahasiswa(token: str = Depends(oauth2_scheme), db: Session = Dep
         raise credentials_exception
     return mahasiswa
 
-def require_admin(current_mahasiswa = Depends(get_current_mahasiswa)):
-    if current_mahasiswa.role != "admin":
-        raise HTTPException(status_code=403, detail="Hanya admin yang diizinkan.")
-    return current_mahasiswa
+def get_current_admin(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Admin tidak valid"
+    )
+
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+    admin_id = payload.get("sub")
+
+    if admin_id is None:
+        raise credentials_exception
+
+    admin = db.query(models.Admin).filter(
+        models.Admin.id == admin_id
+    ).first()
+
+    if admin is None:
+        raise credentials_exception
+
+    return admin
+
+def require_admin(current_admin = Depends(get_current_admin)):
+    return current_admin

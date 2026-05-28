@@ -54,9 +54,11 @@ def get_my_tickets(db: Session = Depends(get_db),
 
 # Admin: lihat semua tiket yang masuk
 @router.get("/all")
-def get_all_tickets(db: Session = Depends(get_db),
-                    _admin = Depends(auth.require_admin)):
-    return db.query(models.Ticket).order_by(models.Ticket.created_at.desc()).all()
+def get_all_tickets(
+    db: Session = Depends(get_db),
+    current_admin = Depends(require_admin)
+):
+    return db.query(models.Ticket).all()
 
 # Admin: update status tiket + kirim notifikasi otomatis
 @router.patch("/{ticket_id}/status")
