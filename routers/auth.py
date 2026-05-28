@@ -132,13 +132,22 @@ def admin_login(
         )
 
     access_token = create_access_token(
-        data={"sub": str(admin.id)}
+        data={
+    "sub": str(admin.id),
+    "role": "admin"
+}
     )
 
     return {
-        "access_token": access_token,
-        "token_type": "bearer"
+    "access_token": access_token,
+    "token_type": "bearer",
+    "role": "admin",
+    "user": {
+        "id": admin.id,
+        "nama": admin.nama,
+        "email": admin.email
     }
+}
 
 # =========================
 # LOGIN MAHASISWA
@@ -169,13 +178,23 @@ def login(
         )
 
     access_token = create_access_token(
-        data={"sub": str(mahasiswa.id)}
+        data={
+    "sub": str(mahasiswa.id),
+    "role": "mahasiswa"
+}
     )
 
     return {
-        "access_token": access_token,
-        "token_type": "bearer"
+    "access_token": access_token,
+    "token_type": "bearer",
+    "role": "mahasiswa",
+    "user": {
+        "id": mahasiswa.id,
+        "nama": mahasiswa.nama,
+        "nim": mahasiswa.nim,
+        "email": mahasiswa.email
     }
+}
 
 
 # =========================
