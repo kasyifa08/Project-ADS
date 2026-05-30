@@ -20,7 +20,8 @@ class TicketCreate(BaseModel):
     foto_url: Optional[str] = None
 
 class TicketStatusUpdate(BaseModel):
-    status: str          # 'menunggu' | 'diproses' | 'dikonfirmasi' | 'selesai'
+    status: str
+    # menunggu | diproses | selesai | ditolak
 
 # Mahasiswa: buat tiket baru
 @router.post("/", status_code=201)
@@ -76,9 +77,9 @@ def update_ticket_status(ticket_id: int, data: TicketStatusUpdate,
 
     # Otomatis kirim notifikasi ke mahasiswa pemilik tiket
     pesan_status = {
-        "diproses": "Tiket Anda sedang diproses oleh admin.",
-        "dikonfirmasi": "Barang Anda telah dikonfirmasi! Silakan hubungi admin.",
-        "selesai": "Tiket Anda telah diselesaikan. Terima kasih!"
+    "diproses": "Tiket Anda sedang diproses oleh admin.",
+    "selesai": "Tiket Anda telah diselesaikan.",
+    "ditolak": "Tiket Anda ditolak oleh admin."
     }
     if data.status in pesan_status:
         notif = models.Notification(
