@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional
 from database import get_db
 from auth import require_admin
+from models import Notification
 import models, auth
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
@@ -65,29 +66,52 @@ def get_all_tickets(
 
 # Admin: update status tiket + kirim notifikasi otomatis
 @router.patch("/{ticket_id}/status")
-def update_ticket_status(ticket_id: int, data: TicketStatusUpdate,
-                         db: Session = Depends(get_db),
-                         _admin = Depends(auth.require_admin)):
-    ticket = db.query(models.Ticket).filter(models.Ticket.id == ticket_id).first()
+def update_ticket_status(
+    ticket_id: int,
+    data: TicketStatusUpdate,
+    db: Session = Depends(get_db),
+    _admin = Depends(auth.require_admin)
+):
+    ticket = db.query(models.Ticket).filter(
+        models.Ticket.id == ticket_id
+    ).first()
+
     if not ticket:
-        raise HTTPException(status_code=404, detail="Tiket tidak ditemukan.")
-    
-    ticket.status = data.status
-    db.commit()
-
-    # Otomatis kirim notifikasi ke mahasiswa pemilik tiket
-    pesan_status = {
-    "diproses": "Tiket Anda sedang diproses oleh admin.",
-    "selesai": "Tiket Anda telah diselesaikan.",
-    "ditolak": "Tiket Anda ditolak oleh admin."
-    }
-    if data.status in pesan_status:
-        notif = models.Notification(
-            user_id=ticket.user_id,
-            judul=f"Update status: {ticket.nama_barang}",
-            pesan=pesan_status[data.status]
+        raise HTTPException(
+            status_code=404,
+            detail="Tiket tidak ditemukan."
         )
-        db.add(notif)
-        db.commit()
 
-    return {"message": f"Status tiket diperbarui menjadi '{data.status}'."}
+    # update status tiket
+    ticket.status = data.status
+
+    # buat pesan notifikasi
+    if data.status == "dikonfirmasi":
+        pesan = "Laporan Anda telah diterima dan dikonfirmasi admin."
+    elif data.status == "ditolak":
+        pesan = "Laporan Anda ditolak oleh admin."
+    elif data.status == "selesai":
+        pesan = "Laporan Anda telah selesai."
+    elif data.status == "diproses":
+        pesan = "Laporan Anda sedang diproses admin."
+    else:
+        pesan = f"Status laporan berubah menjadi {data.status}"
+
+    # simpan notifikasi
+    notif = models.Notification(
+        user_id=ticket.user_id,
+        ticket_id=ticket.id,
+        judul="Update Laporan",
+        pesan=pesan,
+        is_read=False
+    )
+
+    db.add(notif)
+    db.add(ticket)
+
+    db.commit()
+    db.refresh(ticket)
+
+    return {
+        "message": f"Status tiket diperbarui menjadi '{data.status}'."
+    }

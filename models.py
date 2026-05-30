@@ -33,6 +33,7 @@ class Ticket(Base):
     kategori = Column(String(100))
     deskripsi = Column(Text)
     ciri_barang = Column(Text)
+    no_telp = Column(String(13))
     lokasi = Column(String(200), nullable=False)
     waktu_kejadian = Column(DateTime(timezone=True), nullable=False)
     foto_url = Column(String(500))
@@ -41,6 +42,10 @@ class Ticket(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     mahasiswa = relationship("Mahasiswa", back_populates="tickets")
+    notifications = relationship(
+    "Notification",
+    back_populates="ticket"
+)
 
 class Post(Base):
     __tablename__ = "posts"
@@ -58,10 +63,12 @@ class Post(Base):
 class Notification(Base):
     __tablename__ = "notifications"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("mahasiswa.id", ondelete="CASCADE"))
+    user_id = Column(Integer,ForeignKey("mahasiswa.id", ondelete="CASCADE"))
+    ticket_id = Column(Integer,ForeignKey("tickets.id", ondelete="CASCADE"),nullable=True)
     judul = Column(String(200), nullable=False)
     pesan = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True),server_default=func.now())
 
-    mahasiswa = relationship("Mahasiswa", back_populates="notifications")
+    mahasiswa = relationship("Mahasiswa",back_populates="notifications")
+    ticket = relationship("Ticket",back_populates="notifications")
