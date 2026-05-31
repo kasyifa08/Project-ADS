@@ -7,17 +7,21 @@ from database import get_db
 from auth import require_admin
 from models import Notification
 import models, auth
+from fastapi import UploadFile, File
+from datetime import date
+import cloudinary.uploader
+from app.cloudinary_config import *
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
 class TicketCreate(BaseModel):
-    tipe: str            # 'hilang' | 'temuan'
+    tipe: str
     nama_barang: str
     deskripsi: Optional[str] = None
     kategori: Optional[str] = None
     ciri_barang: Optional[str] = None
     lokasi: str
-    waktu_kejadian: datetime
+    waktu_kejadian: date
     foto_url: Optional[str] = None
 
 class TicketStatusUpdate(BaseModel):
@@ -45,6 +49,20 @@ def create_ticket(
         "message": "Tiket berhasil dikirim dan menunggu verifikasi admin.",
         "ticket_id": ticket.id,
         "status": ticket.status
+    }
+
+# Mahasiswa: upload foto tiket via Cloudinary   
+@router.post("/upload")
+async def upload_image(
+    file: UploadFile = File(...)
+):
+    result = cloudinary.uploader.upload(
+        file.file,
+        folder="ipb-lost-found"
+    )
+
+    return {
+        "foto_url": result["secure_url"]
     }
 
 # Mahasiswa: lihat tiket milik sendiri
