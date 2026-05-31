@@ -85,6 +85,27 @@ def update_ticket_status(
     # update status tiket
     ticket.status = data.status
 
+    # otomatis buat postingan saat diterima admin
+    if data.status == "diproses":
+
+        existing_post = db.query(models.Post).filter(
+            models.Post.ticket_id == ticket.id
+        ).first()
+
+        if not existing_post:
+            post = models.Post(
+                ticket_id=ticket.id,
+                admin_id=1,  # nanti bisa diganti admin login
+                judul=f"Barang Hilang: {ticket.nama_barang}",
+                deskripsi=ticket.deskripsi,
+                lokasi_ditemukan=ticket.lokasi,
+                waktu_ditemukan=ticket.waktu_kejadian,
+                foto_url=ticket.foto_url,
+                status="tersedia"
+            )
+
+            db.add(post)
+
     # buat pesan notifikasi
     if data.status == "dikonfirmasi":
         pesan = "Laporan Anda telah diterima dan dikonfirmasi admin."
@@ -107,7 +128,6 @@ def update_ticket_status(
     )
 
     db.add(notif)
-    db.add(ticket)
 
     db.commit()
     db.refresh(ticket)
