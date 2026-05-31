@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
+from dotenv import load_dotenv
+load_dotenv()
 import models
 from routers import auth, tickets, posts, notifications
 
