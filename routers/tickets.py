@@ -86,7 +86,7 @@ def update_ticket_status(
     ticket.status = data.status
 
     # otomatis buat postingan saat diterima admin
-    if data.status == "diproses":
+    if data.status in ["diproses", "dikonfirmasi"]:
 
         existing_post = db.query(models.Post).filter(
             models.Post.ticket_id == ticket.id
@@ -96,8 +96,8 @@ def update_ticket_status(
             post = models.Post(
                 ticket_id=ticket.id,
                 admin_id=1,  # nanti bisa diganti admin login
-                judul=f"Barang Hilang: {ticket.nama_barang}",
-                deskripsi=ticket.deskripsi,
+                judul=ticket.nama_barang,
+                deskripsi=ticket.deskripsi or "",
                 lokasi_ditemukan=ticket.lokasi,
                 waktu_ditemukan=ticket.waktu_kejadian,
                 foto_url=ticket.foto_url,
