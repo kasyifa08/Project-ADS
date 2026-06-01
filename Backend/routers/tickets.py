@@ -121,7 +121,7 @@ def update_ticket_status(
                 waktu_ditemukan=ticket.waktu_kejadian,
                 warna=ticket.warna,
                 foto_url=ticket.foto_url,
-                status="tersedia",
+                status="menunggu",
                 tipe=ticket.tipe
             )
 

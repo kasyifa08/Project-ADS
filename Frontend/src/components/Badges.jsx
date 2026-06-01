@@ -1,4 +1,5 @@
 import { COLORS } from "./data";
+
 export const StatusBadge = ({ status }) => {
   const map = {
     menunggu: { bg: "#fef3c7", color: "#b45309", label: "Menunggu" },
@@ -15,10 +16,27 @@ export const StatusBadge = ({ status }) => {
   );
 };
 
-export const TypeBadge = ({ type }) => (
-  <span style={{
-    background: type === "hilang" ? COLORS.errorContainer : COLORS.secondaryContainer,
-    color: type === "hilang" ? COLORS.error : COLORS.secondary,
-    fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 99, textTransform: "uppercase", letterSpacing: "0.05em"
-  }}>{type}</span>
-);
+export const TypeBadge = ({ type }) => {
+  // 1. Force lowercase so string comparison works regardless of API casing
+  const normalizedType = (type || "").toLowerCase().trim();
+
+  // 2. Set explicit configurations so there is no fallback confusion
+  const isHilang = normalizedType === "hilang" || normalizedType === "kehilangan";
+
+  return (
+    <span style={{
+      background: isHilang ? COLORS.errorContainer : COLORS.secondaryContainer,
+      color: isHilang ? COLORS.error : COLORS.secondary,
+      fontSize: 10, 
+      fontWeight: 700, 
+      padding: "3px 10px", 
+      borderRadius: 99, 
+      textTransform: "uppercase", 
+      letterSpacing: "0.05em",
+      display: "inline-block"
+    }}>
+      {/* FIX: Force text output to read consistently */}
+      {isHilang ? "HILANG" : "TEMUAN"}
+    </span>
+  );
+};

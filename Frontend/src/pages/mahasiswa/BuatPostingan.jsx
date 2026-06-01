@@ -488,13 +488,13 @@ const LaporBarang = ({ onNav, ticketsHilang, ticketsTemuan, setPostingan }) => {
   const handleSubmitTicket = async () => {
     try {
       setLoading(true);
-
       let foto_url = null;
 
       if (files.length > 0) {
         foto_url = await uploadImage(files[0]);
       }
 
+      // Dynamic payload building to match backend column configurations
       const payload = {
         tipe: formData.tipe,
         nama_barang: formData.nama_barang,
@@ -502,16 +502,19 @@ const LaporBarang = ({ onNav, ticketsHilang, ticketsTemuan, setPostingan }) => {
         kategori: formData.kategori,
         ciri_barang: formData.ciri_barang,
         warna: formData.warna,
-        lokasi: formData.lokasi,
-        waktu_kejadian: formData.waktu_kejadian,
         foto_url: foto_url || null,
+        status: "MENUNGGU",
+        lokasi_ditemukan: formData.lokasi,
+        waktu_ditemukan: formData.waktu_kejadian,
+        lokasi: formData.lokasi,
+        waktu_kejadian: formData.waktu_kejadian
       };
 
       const response = await api.post("/tickets/", payload);
 
       const newTicketId = response.data.ticket_id;
       setTicketId(newTicketId);
-      setSuccess(true);
+      setSuccess(true); // Only set success true once the backend safely responds!
       alert("Laporan berhasil dikirim!");
     } catch (error) {
       console.error("Error creating ticket:", error);
@@ -521,10 +524,13 @@ const LaporBarang = ({ onNav, ticketsHilang, ticketsTemuan, setPostingan }) => {
     }
   };
 
+  // FIX: Remove the rogue else branch that mocks a fake success screen
   const handleNext = () => {
-    if (step < TOTAL) setStep(s => s + 1);
-    else { setSuccess(true); }
+    if (step < TOTAL) {
+      setStep(s => s + 1);
+    }
   };
+
   const handleBack = () => {
     if (step > 1) setStep(s => s - 1);
     else onNav?.("dashboard");

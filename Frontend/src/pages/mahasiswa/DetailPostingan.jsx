@@ -31,7 +31,7 @@ export default function DetailPostingan({ onNav, selectedItem }) {
       <AppLayout activePage="cari" onNav={onNav} title="Detail Barang">
         <div style={{ padding: 20, textAlign: "center" }}>
           <p style={{ color: COLORS.onSurfaceVariant }}>Data tidak ditemukan</p>
-          <button 
+          <button
             onClick={() => onNav("cari")}
             style={{
               marginTop: 16,
@@ -52,14 +52,14 @@ export default function DetailPostingan({ onNav, selectedItem }) {
   }
 
   // Handle different field names from backend
-  const namaBarang = item.nama_barang || item.item || item.judul || "Tanpa Nama";
-  const lokasi = item.lokasi || item.location || item.lokasi_ditemukan || "-";
+  const namaBarang = item.judul || item.nama_barang || item.item || "Tanpa Nama";
+  const lokasi = item.lokasi_ditemukan || item.lokasi || item.location || "-";  
   const kategori = item.kategori || item.category || "-";
   const warna = item.warna || item.color || "-";
-  const waktuKejadian = item.waktu_kejadian || item.time || new Date().toISOString();
+  const waktuKejadian = item.waktu_ditemukan || item.waktu_kejadian || item.time;  
   const deskripsi = item.deskripsi || item.desc || item.description || "-";
   const ciriBarang = item.ciri_barang || item.characteristics || "-";
-  const fotoUrl = item.foto_url || item.img || "https://via.placeholder.com/400x300?text=No+Image";
+  const fotoUrl = item.foto_url || item.img || "https://via.placeholder.com/400x300";  
   const tipe = item.tipe || item.type || "temuan";
   const status = item.status || "menunggu";
   console.log("DETAIL ITEM:", item);

@@ -69,24 +69,32 @@ function AppRoutes() {
 
   // Fetch posts from backend (temporarily disabled - backend endpoint has issues)
   // Fetch posts from backend
+  // Fetch posts from backend with proper type mapping
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await api.get("/posts/");
 
-        const formatted = response.data.map((item) => ({
-          id: item.id,
-          item: item.judul,
-          img: item.foto_url?.startsWith("http")
-            ? item.foto_url
-            : `https://project-ads-production.up.railway.app${item.foto_url}`,
-          location: item.lokasi_ditemukan,
-          time: item.waktu_ditemukan
-            ? new Date(item.waktu_ditemukan).toLocaleString("id-ID")
-            : "-",
-          type: "temuan",
-          deskripsi: item.deskripsi,
-        }));
+        const formatted = response.data.map((item) => {
+          // Dynamically check what the backend type is, default to "temuan" only if missing
+          const itemType = (item.tipe || item.type || item.ticket_type || "temuan").toLowerCase();
+
+          return {
+            id: item.id,
+            item: item.judul || item.nama_barang,
+            img: item.foto_url?.startsWith("http")
+              ? item.foto_url
+              : `https://project-ads-production.up.railway.app${item.foto_url}`,
+            location: item.lokasi_ditemukan || item.lokasi,
+            time: item.waktu_ditemukan || item.waktu_kejadian
+              ? new Date(item.waktu_ditemukan || item.waktu_kejadian).toLocaleString("id-ID")
+              : "-",
+            type: itemType, // ✅ No longer hardcoded to "temuan"!
+            deskripsi: item.deskripsi || item.desc,
+            status: item.status || "MENUNGGU",
+            kategori: item.kategori || "Lainnya"
+          };
+        });
 
         setPostingan(formatted);
       } catch (error) {
