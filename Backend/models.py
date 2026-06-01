@@ -53,6 +53,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True, index=True)
     admin_id = Column(Integer, ForeignKey("admins.id"))
     ticket_id = Column(Integer, ForeignKey("tickets.id"))
+    tipe = Column(String(10), nullable=True)
     judul = Column(String(200), nullable=False)
     deskripsi = Column(Text, nullable=False)
     lokasi_ditemukan = Column(String(200))
