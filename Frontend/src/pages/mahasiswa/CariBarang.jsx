@@ -52,7 +52,7 @@ export default function CariBarang({onNav,postingan,setSelectedItem}) {
             <div key={item.id} style={{ background: "white", borderRadius: 16, border: "1px solid #f1f5f9", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", cursor: "pointer" }}>
               <div style={{ position: "relative", height: 180, overflow: "hidden" }}>
                 <img src={item.img} alt={item.item} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <div style={{ position: "absolute", top: 10, left: 10 }}><TypeBadge type={item.tipe} /></div>
+                <div style={{ position: "absolute", top: 10, left: 10 }}><TypeBadge type={item.type} /></div>
               </div>
               <div style={{ padding: 16 }}>
                 <h4 style={{ fontWeight: 700, marginBottom: 8, fontSize: 14 }}>{item.item}</h4>
