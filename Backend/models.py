@@ -62,6 +62,8 @@ class Post(Base):
     foto_url = Column(String(500))
     status = Column(String(20), default="tersedia")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    kategori = Column(String(100), nullable=True)
+    ciri_barang = Column(Text, nullable=True)
 
 class Notification(Base):
     __tablename__ = "notifications"

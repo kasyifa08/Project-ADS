@@ -499,15 +499,16 @@ const LaporBarang = ({ onNav, ticketsHilang, ticketsTemuan, setPostingan }) => {
         tipe: formData.tipe,
         nama_barang: formData.nama_barang,
         deskripsi: formData.deskripsi,
-        kategori: formData.kategori,
         ciri_barang: formData.ciri_barang,
         warna: formData.warna,
         foto_url: foto_url || null,
-        status: "MENUNGGU",
         lokasi_ditemukan: formData.lokasi,
         waktu_ditemukan: formData.waktu_kejadian,
         lokasi: formData.lokasi,
-        waktu_kejadian: formData.waktu_kejadian
+        waktu_kejadian: formData.waktu_kejadian,
+        status: "MENUNGGU",
+        kategori: formData.kategori, 
+        category: formData.kategori  
       };
 
       const response = await api.post("/tickets/", payload);

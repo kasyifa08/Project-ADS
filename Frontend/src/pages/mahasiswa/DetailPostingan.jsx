@@ -62,7 +62,32 @@ export default function DetailPostingan({ onNav, selectedItem }) {
   const fotoUrl = item.foto_url || item.img || "https://via.placeholder.com/400x300";  
   const tipe = item.tipe || item.type || "temuan";
   const status = item.status || "menunggu";
+
+  // Formats date and strictly removes the clock pattern
+  const formatDisplayTime = (timeInput) => {
+    if (!timeInput) return "-";
+    const timeStr = String(timeInput);
+    
+    // If it's already a localized string ("6/5/2026, 00.00.00"), drop the clock segment after the comma
+    if (timeStr.includes(",")) {
+      return timeStr.split(",")[0].trim();
+    }
+    
+    // If it contains slashes but no comma yet
+    if (timeStr.includes("/")) {
+      return timeStr;
+    }
+
+    // Parse raw ISO timestamps cleanly without returning time parameters
+    if (timeStr.includes("T") || !isNaN(Date.parse(timeStr))) {
+      return new Date(timeStr).toLocaleDateString("id-ID");
+    }
+    
+    return timeStr;
+  };
+
   console.log("DETAIL ITEM:", item);
+  
   return (
     <AppLayout activePage="cari" onNav={onNav} title="Detail Barang" isAdmin={false}>
       <div style={{ maxWidth: 860, margin: "0 auto" }}>
@@ -89,7 +114,7 @@ export default function DetailPostingan({ onNav, selectedItem }) {
                 { icon: "location_on", label: "Lokasi", value: lokasi },
                 { icon: "category", label: "Kategori", value: kategori },
                 { icon: "palette", label: "Warna", value: warna },
-                { icon: "schedule", label: "Waktu", value: new Date(waktuKejadian).toLocaleDateString("id-ID") },
+                { icon: "schedule", label: "Waktu", value: formatDisplayTime(waktuKejadian) },
               ].map((f, i) => (
                 <div key={i} style={{ background: COLORS.surfaceContainerLow, borderRadius: 12, padding: 16 }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 6 }}>

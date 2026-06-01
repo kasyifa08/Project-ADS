@@ -14,6 +14,11 @@ class PostCreate(BaseModel):
     lokasi_ditemukan: Optional[str] = None
     waktu_ditemukan: Optional[datetime] = None
     foto_url: Optional[str] = None
+    tipe: Optional[str] = "temuan"
+    status: Optional[str] = "tersedia"
+    kategori: Optional[str] = None
+    warna: Optional[str] = None
+    ciri_barang: Optional[str] = None
 
 # Admin: buat postingan barang temuan
 @router.post("/", status_code=201)

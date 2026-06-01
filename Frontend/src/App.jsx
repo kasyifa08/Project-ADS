@@ -67,16 +67,14 @@ function AppRoutes() {
     fetchTickets();
   }, []);
 
-  // Fetch posts from backend (temporarily disabled - backend endpoint has issues)
   // Fetch posts from backend
-  // Fetch posts from backend with proper type mapping
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await api.get("/posts/");
 
         const formatted = response.data.map((item) => {
-          // Dynamically check what the backend type is, default to "temuan" only if missing
+          // Normalize the reporting type
           const itemType = (item.tipe || item.type || item.ticket_type || "temuan").toLowerCase();
 
           return {
@@ -89,10 +87,14 @@ function AppRoutes() {
             time: item.waktu_ditemukan || item.waktu_kejadian
               ? new Date(item.waktu_ditemukan || item.waktu_kejadian).toLocaleString("id-ID")
               : "-",
-            type: itemType, // ✅ No longer hardcoded to "temuan"!
+            type: itemType,
             deskripsi: item.deskripsi || item.desc,
             status: item.status || "MENUNGGU",
-            kategori: item.kategori || "Lainnya"
+            
+            // 🌟 THE MISSING LINKS: Map these directly from backend database columns
+            kategori: item.kategori || item.category || "Lainnya",
+            warna: item.warna || item.color || "-",
+            ciri_barang: item.ciri_barang || item.characteristics || "-"
           };
         });
 
