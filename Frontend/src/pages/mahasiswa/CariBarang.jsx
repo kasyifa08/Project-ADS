@@ -22,6 +22,10 @@ export default function CariBarang({onNav,postingan,setSelectedItem}) {
     return matchSearch && matchType && matchCat;
   });
 
+  useEffect(() => {
+  console.log("postingan:", postingan);
+}, [postingan]);
+
   return (
     <AppLayout activePage="cari" onNav={onNav} title="Cari Barang" isAdmin={false}>
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
