@@ -57,6 +57,7 @@ class Post(Base):
     deskripsi = Column(Text, nullable=False)
     lokasi_ditemukan = Column(String(200))
     waktu_ditemukan = Column(DateTime(timezone=True))
+    warna = Column(String)
     foto_url = Column(String(500))
     status = Column(String(20), default="tersedia")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
