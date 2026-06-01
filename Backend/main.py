@@ -12,7 +12,7 @@ app = FastAPI(title="IPB Lost & Found API", version="1.0.0")
 # CORS: izinkan React frontend terhubung
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["project-ads-git-main-kasyifa08s-projects.vercel.app", "http://127.0.0.1:5173",],
+    allow_origins=["https://project-ads.vercel.app", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
