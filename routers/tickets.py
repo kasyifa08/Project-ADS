@@ -21,6 +21,7 @@ class TicketCreate(BaseModel):
     kategori: Optional[str] = None
     ciri_barang: Optional[str] = None
     lokasi: str
+    warna: Optional[str] = None
     waktu_kejadian: date
     foto_url: Optional[str] = None
 
@@ -113,11 +114,12 @@ def update_ticket_status(
         if not existing_post:
             post = models.Post(
                 ticket_id=ticket.id,
-                admin_id=1,  # nanti bisa diganti admin login
+                admin_id=1,
                 judul=ticket.nama_barang,
                 deskripsi=ticket.deskripsi or "",
                 lokasi_ditemukan=ticket.lokasi,
                 waktu_ditemukan=ticket.waktu_kejadian,
+                warna=ticket.warna,
                 foto_url=ticket.foto_url,
                 status="tersedia"
             )
