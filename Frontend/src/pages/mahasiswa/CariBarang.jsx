@@ -13,7 +13,7 @@ const C = {
   outlineVariant: COLORS.outlineVariant,
 };
 
-export default function CariBarang({onNav,postingan,setSelectedItem}) {
+export default function CariBarang({ onNav, postingan, setSelectedItem }) {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("semua");
   const [filterCat, setFilterCat] = useState("semua");
@@ -25,14 +25,19 @@ export default function CariBarang({onNav,postingan,setSelectedItem}) {
         .includes(search.toLowerCase()) ||
       (item.location || "")
         .toLowerCase()
-        .includes(search.toLowerCase()); const matchType = filterType === "semua" || item.type === filterType;
+        .includes(search.toLowerCase());
+        
+    // FIX: Convert item.type to lowercase before comparing to prevent casing issues
+    const itemTypeLower = (item.type || "").toLowerCase();
+    const matchType = filterType === "semua" || itemTypeLower === filterType;
+    
     const matchCat = filterCat === "semua" || item.category === filterCat;
     return matchSearch && matchType && matchCat;
   });
 
   useEffect(() => {
-  console.log("postingan:", postingan);
-}, [postingan]);
+    console.log("postingan:", postingan);
+  }, [postingan]);
 
   return (
     <AppLayout activePage="cari" onNav={onNav} title="Cari Barang" isAdmin={false}>
