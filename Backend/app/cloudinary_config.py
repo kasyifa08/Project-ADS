@@ -1,4 +1,4 @@
 import cloudinary
-import os
+import cloudinary.uploader
 
-cloudinary.config(cloudinary_url=os.getenv("CLOUDINARY_URL"))
+cloudinary.config(secure=True)
