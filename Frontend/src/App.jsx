@@ -82,7 +82,7 @@ function AppRoutes() {
             item: item.judul || item.nama_barang,
             img: item.foto_url?.startsWith("http")
               ? item.foto_url
-              : `https://project-ads-production.up.railway.app${item.foto_url}`,
+              : `project-ads-production-9aeb.up.railway.app${item.foto_url}`,
             location: item.lokasi_ditemukan || item.lokasi,
             time: item.waktu_ditemukan || item.waktu_kejadian
               ? new Date(item.waktu_ditemukan || item.waktu_kejadian).toLocaleString("id-ID")
