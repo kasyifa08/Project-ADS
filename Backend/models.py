@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -94,10 +94,9 @@ class AuditLog(Base):
     detail = Column(Text, nullable=True)              # info tambahan (JSON string)
     created_at = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False,
+        server_default=func.now(),
+        nullable=False
     )
-
 
 # ── Action Constants ──────────────────────────────────────────────────────────
 
