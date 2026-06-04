@@ -1,7 +1,11 @@
+import datetime
+
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
+from sqlalchemy.orm import Session
+from sqlalchemy import Column, Integer, String, DateTime, Text
 
 class Admin(Base):
     __tablename__ = "admins"
@@ -77,3 +81,45 @@ class Notification(Base):
 
     mahasiswa = relationship("Mahasiswa",back_populates="notifications")
     ticket = relationship("Ticket",back_populates="notifications")
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)
+    user_role = Column(String(20), nullable=False)   # 'mahasiswa' | 'admin'
+    action = Column(String(100), nullable=False)      # 'LOGIN', 'CREATE_TICKET', dll
+    resource = Column(String(50), nullable=True)      # tabel/resource yang diakses
+    resource_id = Column(Integer, nullable=True)      # ID record yang diakses
+    ip_address = Column(String(45), nullable=True)    # IPv4/IPv6
+    detail = Column(Text, nullable=True)              # info tambahan (JSON string)
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+
+# ── Action Constants ──────────────────────────────────────────────────────────
+
+class AuditAction:
+    # Auth
+    LOGIN_SUCCESS = "LOGIN_SUCCESS"
+    LOGIN_FAILED = "LOGIN_FAILED"
+    LOGOUT = "LOGOUT"
+    REGISTER = "REGISTER"
+
+    # Ticket
+    TICKET_CREATE = "TICKET_CREATE"
+    TICKET_VIEW = "TICKET_VIEW"
+    TICKET_STATUS_UPDATE = "TICKET_STATUS_UPDATE"
+    TICKET_DELETE = "TICKET_DELETE"
+
+    # Admin
+    POST_CREATE = "POST_CREATE"
+    POST_UPDATE = "POST_UPDATE"
+
+    # Security events
+    BRUTE_FORCE_LOCKOUT = "BRUTE_FORCE_LOCKOUT"
+    UNAUTHORIZED_ACCESS = "UNAUTHORIZED_ACCESS"
+    DECRYPTION_ERROR = "DECRYPTION_ERROR"

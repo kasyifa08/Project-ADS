@@ -8,12 +8,18 @@ from database import get_db
 import models, os
 import base64
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from sqlalchemy.orm import Session
 
 import bcrypt as _bcrypt
 if not hasattr(_bcrypt, '__about__'):
     _bcrypt.__about__ = type('about', (), {'__version__': _bcrypt.__version__})()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "ganti-dengan-kunci-rahasia-yang-panjang")
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY tidak ditemukan di environment variable"
+    )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
@@ -187,3 +193,44 @@ def safe_decrypt(value: str | None) -> str | None:
     if is_encrypted(value):
         return decrypt(value)
     return value          # plaintext legacy data
+
+def log_activity(
+    db: Session,
+    user_id: int,
+    user_role: str,
+    action: str,
+    resource: str = None,
+    resource_id: int = None,
+    ip_address: str = None,
+    detail: str = None,
+) -> None:
+    """
+    Catat aktivitas ke tabel audit_logs.
+    Dipanggil dari router setelah setiap operasi sensitif.
+    """
+    entry = AuditLog(
+        user_id=user_id,
+        user_role=user_role,
+        action=action,
+        resource=resource,
+        resource_id=resource_id,
+        ip_address=ip_address,
+        detail=detail,
+    )
+    db.add(entry)
+    db.commit()
+
+
+def get_audit_trail(
+    db: Session,
+    user_id: int = None,
+    action: str = None,
+    limit: int = 100,
+) -> list[AuditLog]:
+    """Query audit log dengan filter opsional."""
+    query = db.query(AuditLog)
+    if user_id:
+        query = query.filter(AuditLog.user_id == user_id)
+    if action:
+        query = query.filter(AuditLog.action == action)
+    return query.order_by(AuditLog.created_at.desc()).limit(limit).all()
