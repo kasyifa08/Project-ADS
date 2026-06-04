@@ -7,22 +7,17 @@ from database import get_db
 from auth import require_admin
 from models import Notification
 import models, auth
-from fastapi import UploadFile, File
-from datetime import date
-import cloudinary.uploader
-from app.cloudinary_config import *
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
 class TicketCreate(BaseModel):
-    tipe: str
+    tipe: str            # 'hilang' | 'temuan'
     nama_barang: str
     deskripsi: Optional[str] = None
     kategori: Optional[str] = None
     ciri_barang: Optional[str] = None
     lokasi: str
-    warna: Optional[str] = None
-    waktu_kejadian: date
+    waktu_kejadian: datetime
     foto_url: Optional[str] = None
 
 class TicketStatusUpdate(BaseModel):
@@ -52,20 +47,6 @@ def create_ticket(
         "status": ticket.status
     }
 
-# Mahasiswa: upload foto tiket via Cloudinary   
-@router.post("/upload")
-async def upload_image(
-    file: UploadFile = File(...)
-):
-    result = cloudinary.uploader.upload(
-        file.file,
-        folder="ipb-lost-found"
-    )
-
-    return {
-        "foto_url": result["secure_url"]
-    }
-
 # Mahasiswa: lihat tiket milik sendiri
 @router.get("/my/")
 def get_my_tickets(db: Session = Depends(get_db),
@@ -89,7 +70,7 @@ def update_ticket_status(
     ticket_id: int,
     data: TicketStatusUpdate,
     db: Session = Depends(get_db),
-    _admin = Depends(auth.require_admin)
+    current_admin = Depends(auth.require_admin)
 ):
     ticket = db.query(models.Ticket).filter(
         models.Ticket.id == ticket_id
@@ -114,15 +95,13 @@ def update_ticket_status(
         if not existing_post:
             post = models.Post(
                 ticket_id=ticket.id,
-                admin_id=1,
+                admin_id=1,  # nanti bisa diganti admin login
                 judul=ticket.nama_barang,
                 deskripsi=ticket.deskripsi or "",
                 lokasi_ditemukan=ticket.lokasi,
                 waktu_ditemukan=ticket.waktu_kejadian,
-                warna=ticket.warna,
                 foto_url=ticket.foto_url,
-                status="menunggu",
-                tipe=ticket.tipe
+                status="tersedia"
             )
 
             db.add(post)
