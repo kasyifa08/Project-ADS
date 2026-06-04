@@ -208,7 +208,7 @@ def log_activity(
     Catat aktivitas ke tabel audit_logs.
     Dipanggil dari router setelah setiap operasi sensitif.
     """
-    entry = AuditLog(
+    entry = models.AuditLog(
         user_id=user_id,
         user_role=user_role,
         action=action,
@@ -226,11 +226,11 @@ def get_audit_trail(
     user_id: int = None,
     action: str = None,
     limit: int = 100,
-) -> list[AuditLog]:
+):
     """Query audit log dengan filter opsional."""
-    query = db.query(AuditLog)
+    query = db.query(models.AuditLog)
     if user_id:
-        query = query.filter(AuditLog.user_id == user_id)
+        query = query.filter(models.AuditLog.user_id == user_id)
     if action:
-        query = query.filter(AuditLog.action == action)
-    return query.order_by(AuditLog.created_at.desc()).limit(limit).all()
+        query = query.filter(models.AuditLog.action == action)
+    return query.order_by(models.AuditLog.created_at.desc()).limit(limit).all()
