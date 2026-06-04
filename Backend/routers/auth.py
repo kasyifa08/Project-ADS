@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import MahasiswaLogin, AdminLogin, AdminRegisterRequest
-from auth import get_current_mahasiswa, verify_password, create_access_token
-
+from auth import get_current_mahasiswa, verify_password, create_access_token, safe_encrypt, safe_decrypt
 from database import get_db
 import models
 import auth
@@ -55,10 +54,10 @@ def register(
         )
 
     new_mahasiswa = models.Mahasiswa(
-        nama=data.nama,
+        nama=safe_encrypt(data.nama),
         nim=data.nim,
-        no_telp=data.no_telp,
-        email=data.email,
+        no_telp=safe_encrypt(data.no_telp),
+        email=(data.email),
         password_hash=auth.hash_password(data.password)
     )
 
