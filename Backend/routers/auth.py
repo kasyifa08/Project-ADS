@@ -1,15 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas import MahasiswaLogin, AdminLogin, AdminRegisterRequest
-from auth import get_current_mahasiswa, verify_password, create_access_token, safe_encrypt, safe_decrypt
+from auth import get_current_mahasiswa, verify_password, create_access_token, safe_encrypt, safe_decrypt, log_activity
 from database import get_db
 import models
 import auth
 
-router = APIRouter(tags=["Admin Auth"])
-
+# Menghapus duplikasi deklarasi router sebelumnya
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
@@ -41,6 +40,7 @@ class TokenResponse(BaseModel):
 @router.post("/register", status_code=201)
 def register(
     data: RegisterRequest,
+    request: Request,  # Menambahkan request untuk mengambil IP Address
     db: Session = Depends(get_db)
 ):
     existing = db.query(models.Mahasiswa).filter(
@@ -57,13 +57,25 @@ def register(
         nama=safe_encrypt(data.nama),
         nim=data.nim,
         no_telp=safe_encrypt(data.no_telp),
-        email=(data.email),
+        email=data.email,
         password_hash=auth.hash_password(data.password)
     )
 
     db.add(new_mahasiswa)
     db.commit()
     db.refresh(new_mahasiswa)
+
+    # Catat Log: Registrasi Mahasiswa (User ID menggunakan id baru yang terbuat)
+    log_activity(
+        db=db,
+        user_id=new_mahasiswa.id,
+        user_role="mahasiswa",
+        action="REGISTER",
+        resource="mahasiswa",
+        resource_id=new_mahasiswa.id,
+        ip_address=request.client.host,
+        detail=f"Registrasi akun mahasiswa berhasil dengan email: {data.email}"
+    )
 
     return {
         "message": "Registrasi mahasiswa berhasil!"
@@ -76,6 +88,7 @@ def register(
 @router.post("/admin/register", status_code=201)
 def register_admin(
     data: AdminRegisterRequest,
+    request: Request,  # Menambahkan request untuk mengambil IP Address
     db: Session = Depends(get_db)
 ):
     existing = db.query(models.Admin).filter(
@@ -98,6 +111,18 @@ def register_admin(
     db.commit()
     db.refresh(new_admin)
 
+    # Catat Log: Registrasi Admin
+    log_activity(
+        db=db,
+        user_id=new_admin.id,
+        user_role="admin",
+        action="REGISTER",
+        resource="admin",
+        resource_id=new_admin.id,
+        ip_address=request.client.host,
+        detail=f"Registrasi akun admin berhasil dengan email: {data.email}"
+    )
+
     return {
         "message": "Registrasi admin berhasil!"
     }
@@ -108,6 +133,7 @@ def register_admin(
 
 @router.post("/admin/login")
 def admin_login(
+    request: Request,  # Menambahkan request untuk mengambil IP Address
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
@@ -132,21 +158,33 @@ def admin_login(
 
     access_token = create_access_token(
         data={
-    "sub": str(admin.id),
-    "role": "admin"
-}
+            "sub": str(admin.id),
+            "role": "admin"
+        }
+    )
+
+    # Catat Log: Login Admin
+    log_activity(
+        db=db,
+        user_id=admin.id,
+        user_role="admin",
+        action="LOGIN",
+        resource="admin",
+        resource_id=admin.id,
+        ip_address=request.client.host,
+        detail=f"Admin berhasil masuk sistem"
     )
 
     return {
-    "access_token": access_token,
-    "token_type": "bearer",
-    "role": "admin",
-    "user": {
-        "id": admin.id,
-        "nama": admin.nama,
-        "email": admin.email
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": "admin",
+        "user": {
+            "id": admin.id,
+            "nama": admin.nama,
+            "email": admin.email
+        }
     }
-}
 
 # =========================
 # LOGIN MAHASISWA
@@ -154,6 +192,7 @@ def admin_login(
 
 @router.post("/login")
 def login(
+    request: Request,  # Menambahkan request untuk mengambil IP Address
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
@@ -178,22 +217,34 @@ def login(
 
     access_token = create_access_token(
         data={
-    "sub": str(mahasiswa.id),
-    "role": "mahasiswa"
-}
+            "sub": str(mahasiswa.id),
+            "role": "mahasiswa"
+        }
+    )
+
+    # Catat Log: Login Mahasiswa
+    log_activity(
+        db=db,
+        user_id=mahasiswa.id,
+        user_role="mahasiswa",
+        action="LOGIN",
+        resource="mahasiswa",
+        resource_id=mahasiswa.id,
+        ip_address=request.client.host,
+        detail=f"Mahasiswa berhasil masuk sistem"
     )
 
     return {
-    "access_token": access_token,
-    "token_type": "bearer",
-    "role": "mahasiswa",
-    "user": {
-        "id": mahasiswa.id,
-        "nama": mahasiswa.nama,
-        "nim": mahasiswa.nim,
-        "email": mahasiswa.email
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": "mahasiswa",
+        "user": {
+            "id": mahasiswa.id,
+            "nama": mahasiswa.nama,
+            "nim": mahasiswa.nim,
+            "email": mahasiswa.email
+        }
     }
-}
 
 
 # =========================
@@ -204,10 +255,12 @@ def login(
 def get_me(
     current_mahasiswa = Depends(get_current_mahasiswa)
 ):
+    # Catatan Tambahan: Data nama dan no_telp terenkripsi AES di database. 
+    # Kita gunakan safe_decrypt agar response yang diterima client dalam bentuk plaintext asli.
     return {
         "id": current_mahasiswa.id,
-        "nama": current_mahasiswa.nama,
-        "no_telp": current_mahasiswa.no_telp,
+        "nama": safe_decrypt(current_mahasiswa.nama),
+        "no_telp": safe_decrypt(current_mahasiswa.no_telp),
         "email": current_mahasiswa.email,
         "nim": current_mahasiswa.nim
     }
